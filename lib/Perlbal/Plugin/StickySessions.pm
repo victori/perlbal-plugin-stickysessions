@@ -206,8 +206,8 @@ Perlbal::Plugin::StickySessions - session affinity for perlbal
 
 =head1 SYNOPSIS
 
-This module provides a Perlbal plugin which enables Perlbal the
-ability to load balance with session affinity.
+This plugin provides a Perlbal the ability to load balance with 
+session affinity.
 
 You *must* patch Perlbal for this plugin to work correctly.
 
