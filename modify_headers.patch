@@ -1,0 +1,12 @@
+diff -urN lib/Perlbal/BackendHTTP.pm ../Perlbal-1.72-fork/lib/Perlbal/BackendHTTP.pm
+--- lib/Perlbal/BackendHTTP.pm	2008-09-13 17:23:38.000000000 -0700
++++ ../Perlbal-1.72-fork/lib/Perlbal/BackendHTTP.pm	2009-06-25 09:25:56.000000000 -0700
+@@ -456,6 +456,8 @@
+     if ($te && $te !~ /\bidentity\b/i) {
+         $hd->header("Content-Length", undef);
+     }
++    
++    $self->{service}->run_hook('modify_response_headers', $self);
+ 
+     my Perlbal::HTTPHeaders $rqhd = $self->{req_headers};
+ 
