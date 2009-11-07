@@ -12,7 +12,11 @@ use Scalar::Util qw(blessed reftype);
 # LOAD StickySessions
 # SET plugins        = stickysessions
 #
-# Add $self->{service}->run_hook('modify_response_headers', $self);
+# Add 
+#    my $svc = $self->{service};
+#    if(ref($svc) && UNIVERSAL::can($svc,'can')) {
+#      $svc->run_hook('modify_response_headers', $self);
+#    }
 # To sub handle_response in BackendHTTP after Content-Length is set.
 #
 
