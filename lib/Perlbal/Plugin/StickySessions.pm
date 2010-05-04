@@ -45,8 +45,13 @@ sub get_backend_id {
 }
 
 sub decode_server_id {
-    my $id = shift;
-    return ( $id - 1 );
+    my ($svc,$id) = @_;
+    
+    my $ret = 0;
+    eval {
+      $ret = ( $id - 1 ) unless ( ($id-1) > $#{$svc->{pool}->{nodes}} );
+    };
+    return $ret;
 }
 
 sub get_ipport {
@@ -95,11 +100,10 @@ sub find_or_get_new_backend {
 
         # give the backend this client
         if ( defined $ipport ) {
-            if ( $be->{ ipport } eq $ipport ) {
-                if ( $be->assign_client($client) ) {
-                    $svc->spawn_backends;
-                    return 1;
-                }
+            next if ( $be->{ ipport } eq $ipport );
+            if ( $be->assign_client($client) ) {
+                $svc->spawn_backends;
+                return 1;
             }
         } else {
             if ( $be->assign_client($client) ) {
