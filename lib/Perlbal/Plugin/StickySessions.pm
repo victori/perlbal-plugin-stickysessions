@@ -223,9 +223,13 @@ sub register {
         # can't create more than this, assuming one pending connect per node
         my $max_creatable = $pool ? ($self->{pool}->node_count - $self->{pending_connect_count}) : 1;
         $to_create = $max_creatable if $to_create > $max_creatable;
+        
+        if ($pool) {
+          $to_create = $self->{pool}->node_count * 3 if $to_create < $self->{pool}->node_count * 3
+        }
 
-        # cap number of attempted connects at once
-        $to_create = 10 if $to_create > 10;
+        # We are not worried about the limit since we need connections pooled.
+        #$to_create = 10 if $to_create > 10;
 
         my $now = time;
 
