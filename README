@@ -16,9 +16,10 @@ Then install it:
 
     % make install
     
-Finally apply the modify_headers.patch to perlbal:
+Finally apply both patches to Perlbal:
   
     % cat modify_headers.patch | patch -p0
+    % cat spawn_hook.patch | patch -p0
 
 DOCUMENTATION
 

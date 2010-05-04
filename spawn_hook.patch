@@ -1,0 +1,11 @@
+--- lib/Perlbal/Service.pm.bk	2010-05-04 15:28:49.000000000 -0700
++++ lib/Perlbal/Service.pm	2010-05-04 15:29:06.000000000 -0700
+@@ -1354,6 +1354,8 @@
+ # sees if it should spawn one or more backend connections
+ sub spawn_backends {
+     my Perlbal::Service $self = shift;
++    
++    return if $self->run_hook('spawn_backends', $self);
+ 
+     # check our lock and set it if we can
+     return if $self->{spawn_lock};
