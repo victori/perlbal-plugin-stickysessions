@@ -91,7 +91,7 @@ sub check_bored_backend {
 
           # don't use connect-ahead connections when we haven't
           # verified we have their attention
-          if ( !$be->{ has_attention } && $be->{ create_time } < $now - 5 ) {
+          if ( !$be->{ has_attention } && $be->{ create_time } < $now - 10 ) {
               $be->close("too_old_bored");
               next;
           }
