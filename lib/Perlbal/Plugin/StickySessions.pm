@@ -135,7 +135,7 @@ sub register {
     my $cb_spawn;
     $cb_spawn = sub {
       $gsvc->spawn_backends;
-      Danga::Socket->AddTimer(5, $cb_spawn);
+      Danga::Socket->AddTimer(3, $cb_spawn);
     };
     $cb_spawn->();
 
@@ -225,7 +225,9 @@ sub register {
         $to_create = $max_creatable if $to_create > $max_creatable;
         
         if ($pool) {
-          $to_create = $self->{pool}->node_count * 3 if $to_create < $self->{pool}->node_count * 3
+           if ($backends_created < $self->{pool}->node_count * 3) {
+             $to_create = $self->{pool}->node_count * 3
+          }
         }
 
         # We are not worried about the limit since we need connections pooled.
