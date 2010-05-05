@@ -150,6 +150,18 @@ sub register {
             next;
         }
       }
+      
+      my $sf = Perlbal::Socket->get_sock_ref;
+      foreach my $k (keys %$sf) {
+          my Perlbal::Socket $sock = $sf->{$k};
+          my $age = $now - $sock->{create_time};
+          if($age > 10 && defined $sock->{state} && $sock->{state} eq "bored") {
+            if ($sock->as_string =~ /Perlbal::BackendHTTP/) {
+              $sock->close();
+            }
+          }
+      }
+      
       $gsvc->spawn_backends;
       Danga::Socket->AddTimer(3, $cb_spawn);
     };
@@ -239,12 +251,6 @@ sub register {
         # can't create more than this, assuming one pending connect per node
         my $max_creatable = $pool ? ($self->{pool}->node_count - $self->{pending_connect_count}) : 1;
         $to_create = $max_creatable if $to_create > $max_creatable;
-        
-        if ($pool) {
-           if ($backends_created < $self->{pool}->node_count * 3) {
-             $to_create = $self->{pool}->node_count * 3
-          }
-        }
 
         # We are not worried about the limit since we need connections pooled.
         #$to_create = 10 if $to_create > 10;
