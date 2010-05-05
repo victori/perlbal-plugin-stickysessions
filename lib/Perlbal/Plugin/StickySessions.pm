@@ -91,7 +91,7 @@ sub check_bored_backend {
 
           # don't use connect-ahead connections when we haven't
           # verified we have their attention
-          if ( !$be->{ has_attention } && $be->{ create_time } < $now - 10 ) {
+          if ( !$be->{ has_attention } && $be->{ create_time } < $now - 5 ) {
               $be->close("too_old_bored");
               next;
           }
@@ -134,6 +134,22 @@ sub register {
     # Keep a horde of backends up.
     my $cb_spawn;
     $cb_spawn = sub {
+      my $now = time;
+      while ( my $be = shift @{ $gsvc->{ bored_backends } } ) {
+        next if $be->{ closed };
+
+        next unless $gsvc->verify_generation($be);
+
+        if ( !$be->{ has_attention } && $be->{ create_time } < $now - 5 ) {
+            $be->close("too_old_bored");
+            next;
+        }
+
+        if ( $be->{ disconnect_at } && $now + 2 > $be->{ disconnect_at } ) {
+            $be->close("too_close_disconnect");
+            next;
+        }
+      }
       $gsvc->spawn_backends;
       Danga::Socket->AddTimer(3, $cb_spawn);
     };
