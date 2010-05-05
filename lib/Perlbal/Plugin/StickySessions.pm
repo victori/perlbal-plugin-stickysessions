@@ -157,10 +157,9 @@ sub register {
           my $age = $now - $sock->{create_time};
           if($age > 10 && defined $sock->{state} && $sock->{state} eq "bored"
           && defined $sock->{use_count} && $sock->{use_count} == 0 
-          && defined $sock->{has_attention} && $sock->{has_attention} == 0) {
-            if ($sock->as_string =~ /Perlbal::BackendHTTP/) {
-              $sock->close();
-            }
+          && defined $sock->{has_attention} && $sock->{has_attention} == 0
+          && defined $sock->{service} && $sock->{service} eq $gsvc) {
+            $sock->close();
           }
       }
       
