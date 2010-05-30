@@ -135,6 +135,7 @@ sub register {
     my $cb_spawn;
     $cb_spawn = sub {
       my $now = time;
+      my $to_spawn = 0;
       while ( my $be = shift @{ $gsvc->{ bored_backends } } ) {
         next if $be->{ closed };
 
@@ -142,11 +143,13 @@ sub register {
 
         if ( !$be->{ has_attention } && $be->{ create_time } < $now - 5 ) {
             $be->close("too_old_bored");
+            $to_spawn = 1;
             next;
         }
 
         if ( $be->{ disconnect_at } && $now + 2 > $be->{ disconnect_at } ) {
             $be->close("too_close_disconnect");
+            $to_spawn = 1;
             next;
         }
       }
@@ -155,16 +158,17 @@ sub register {
       foreach my $k (keys %$sf) {
           my Perlbal::BackendHTTP $sock = $sf->{$k};
           my $age = $now - $sock->{create_time};
-          if($age > 10 && defined $sock->{state} && $sock->{state} eq "bored"
+          if($age > 10 && defined $sock->{state}
           && defined $sock->{use_count} && $sock->{use_count} == 0 
           && defined $sock->{has_attention} && $sock->{has_attention} == 0
           && defined $sock->{service} && $sock->{service} eq $gsvc) {
             $sock->close();
+            $to_spawn = 1;
           }
       }
       
-      $gsvc->spawn_backends;
-      Danga::Socket->AddTimer(3, $cb_spawn);
+      $gsvc->spawn_backends if $to_spawn;
+      Danga::Socket->AddTimer(5, $cb_spawn);
     };
     $cb_spawn->();
 
